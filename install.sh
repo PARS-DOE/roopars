@@ -77,6 +77,59 @@ echo "Running variable insertion script..."
 echo "Cleaning up..."
 rm insert-variables.sh
 
+# Ask to update .gitignore
+echo "The .roo directory contains environment-specific variables and should"
+echo "typically not be committed to your repository. The memory-bank directory"
+echo "contains shared project context that's useful for collaboration."
+echo ""
+
+# Default to 'y' if no input is provided
+read -p "Would you like to update your .gitignore to exclude the .roo directory? [Y/n] " update_gitignore
+update_gitignore=${update_gitignore:-y}
+
+if [[ $update_gitignore =~ ^[Yy]$ ]]; then
+  echo "Updating .gitignore..."
+  
+  # Lines to add to .gitignore
+  gitignore_entries=(
+    "# RooPARS - Environment-specific files"
+    "/.roo/"
+  )
+  
+  # Create or update .gitignore
+  if [ ! -f ".gitignore" ]; then
+    # Create new .gitignore with our entries
+    for entry in "${gitignore_entries[@]}"; do
+      echo "$entry" >> .gitignore
+    done
+    echo "Created .gitignore file."
+  else
+    # Check if the entries already exist before adding
+    needs_update=false
+    for entry in "${gitignore_entries[@]}"; do
+      if ! grep -q "^$entry$" .gitignore; then
+        needs_update=true
+        break
+      fi
+    done
+    
+    if [ "$needs_update" = true ]; then
+      echo "" >> .gitignore  # Add blank line for readability
+      for entry in "${gitignore_entries[@]}"; do
+        if ! grep -q "^$entry$" .gitignore; then
+          echo "$entry" >> .gitignore
+        fi
+      done
+      echo "Updated .gitignore file."
+    else
+      echo "The necessary entries are already in .gitignore."
+    fi
+  fi
+else
+  echo "Skipped updating .gitignore."
+  echo "Note: You might want to manually add '/.roo/' to your .gitignore file."
+fi
+
 echo "===================================="
 echo "  RooPARS installation completed!   "
 echo "===================================="

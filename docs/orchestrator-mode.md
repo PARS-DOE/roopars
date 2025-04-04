@@ -2,6 +2,15 @@
 
 The Orchestrator mode is a specialized RooPARS mode designed for managing complex workflows and project coordination. This mode excels at breaking down complex projects into well-defined subtasks and delegating them to specialized agents.
 
+## Integration with RooFlow
+
+Orchestrator mode has been fully integrated with the RooFlow architecture:
+
+1. **System Prompt**: A dedicated `system-prompt-orchestrator` file aligns with other RooFlow modes
+2. **Memory Bank Awareness**: Full integration with Memory Bank for persistent context
+3. **Mode Collaboration**: Structured interaction with all specialized modes
+4. **Consistent Interface**: Follows the same patterns and structures as other RooFlow modes
+
 ## Key Capabilities
 
 The Orchestrator mode offers the following key capabilities:
@@ -28,9 +37,14 @@ The Orchestrator follows this general workflow:
    - In planning mode: present breakdown for user approval
 
 3. **Task Delegation**
-   - Match tasks to appropriate team members based on specializations
-   - Use delegation tools with complete parameters
-   - Include relevant Memory Bank context with each delegation
+   - Match tasks to appropriate modes based on specializations
+   - Use `new_task` tool with complete parameters
+   - For small, contained tasks:
+     - Begin delegated message with `[MEMORY BANK: DISABLE]`
+     - Provide all necessary context directly in the message
+   - For complex tasks requiring broader context:
+     - Allow Memory Bank to be active (no disable signal)
+   - Always include specific, detailed requirements regardless of Memory Bank status
 
 4. **Progress Monitoring**
    - Track workflow status (Pending, In Progress, Completed, Blocked)
@@ -68,7 +82,7 @@ To use Orchestrator mode:
 
 The Orchestrator mode operates on these core principles:
 
-- Serves EXCLUSIVELY as an orchestration layer
+- Serves EXCLUSIVELY as an orchestration layer, never producing code directly
 - All significant changes must be documented in Memory Bank
 - In planning mode: explicit user approval required before each new task
 - In execution mode: informs user of progress and continues unless directed otherwise

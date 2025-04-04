@@ -9,7 +9,7 @@ RooPARS enhances AI-assisted development in VS Code by providing **persistent pr
 ### Key Features
 
 * All standard RooFlow features (Architect, Code, Test, Debug, and Ask modes)
-* **Orchestrator Mode**: Enhanced workflow orchestration for complex projects
+* **Enhanced Orchestrator Mode**: Fully integrated with RooFlow architecture for complex project management, with smart Memory Bank optimization for efficiency
 * **Simplified Setup**: Easy installation via script
 * **PARS-Specific Optimizations**: Tailored for DOE PARS-related development
 
@@ -60,6 +60,21 @@ The Memory Bank structure follows the standard RooFlow approach with these Markd
 | `productContext.md` | Project overview, goals, and architecture |
 | `progress.md` | Project progress tracking |
 | `systemPatterns.md` | Recurring patterns and standards |
+
+## 🤖 Orchestrator Mode
+
+The Orchestrator mode is a specialized mode for managing complex workflows and coordinating between other modes. It has been fully integrated with the RooFlow architecture, including:
+
+- Dedicated system prompt configuration
+- Full Memory Bank integration
+- Structured collaboration with all specialized modes
+- **Smart Memory Bank Optimization**: 
+  - Selectively disables Memory Bank for small, contained tasks
+  - Reduces overhead and improves response time for simple tasks
+  - Provides detailed context directly in task delegation messages
+  - Retains Memory Bank for complex tasks requiring broader context
+
+[Learn more about Orchestrator Mode](docs/orchestrator-mode.md)
 
 ## 📝 Commands
 

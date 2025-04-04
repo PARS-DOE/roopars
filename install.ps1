@@ -81,6 +81,66 @@ cmd /c insert-variables.cmd
 Write-Host "Cleaning up..." -ForegroundColor Green
 Remove-Item -Path .\insert-variables.cmd -Force
 
+# Ask to update .gitignore
+Write-Host "The .roo directory contains environment-specific variables and should" -ForegroundColor Yellow
+Write-Host "typically not be committed to your repository. The memory-bank directory" -ForegroundColor Yellow
+Write-Host "contains shared project context that's useful for collaboration." -ForegroundColor Yellow
+Write-Host ""
+
+# Default to 'y' if no input is provided
+$updateGitignore = Read-Host "Would you like to update your .gitignore to exclude the .roo directory? [Y/n]"
+if ([string]::IsNullOrWhiteSpace($updateGitignore)) {
+    $updateGitignore = "y"
+}
+
+if ($updateGitignore -eq "y" -or $updateGitignore -eq "Y") {
+    Write-Host "Updating .gitignore..." -ForegroundColor Green
+    
+    # Lines to add to .gitignore
+    $gitignoreEntries = @(
+        "# RooPARS - Environment-specific files",
+        "/.roo/"
+    )
+    
+    # Create or update .gitignore
+    if (-not (Test-Path -Path ".gitignore")) {
+        # Create new .gitignore with our entries
+        $gitignoreEntries | Out-File -FilePath .gitignore -Encoding utf8
+        Write-Host "Created .gitignore file."
+    }
+    else {
+        # Check if the entries already exist before adding
+        $content = Get-Content -Path .gitignore -Raw
+        $needsUpdate = $false
+        
+        foreach ($entry in $gitignoreEntries) {
+            if ($content -notmatch [regex]::Escape($entry)) {
+                $needsUpdate = $true
+                break
+            }
+        }
+        
+        if ($needsUpdate) {
+            # Add a blank line for readability
+            Add-Content -Path .gitignore -Value ""
+            
+            foreach ($entry in $gitignoreEntries) {
+                if ($content -notmatch [regex]::Escape($entry)) {
+                    Add-Content -Path .gitignore -Value $entry
+                }
+            }
+            Write-Host "Updated .gitignore file."
+        }
+        else {
+            Write-Host "The necessary entries are already in .gitignore."
+        }
+    }
+}
+else {
+    Write-Host "Skipped updating .gitignore." -ForegroundColor Yellow
+    Write-Host "Note: You might want to manually add '/.roo/' to your .gitignore file." -ForegroundColor Yellow
+}
+
 Write-Host "====================================" -ForegroundColor Cyan
 Write-Host "  RooPARS installation completed!   " -ForegroundColor Cyan
 Write-Host "====================================" -ForegroundColor Cyan
