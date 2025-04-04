@@ -28,6 +28,7 @@ else {
         "system-prompt-ask", 
         "system-prompt-code", 
         "system-prompt-debug", 
+        "system-prompt-orchestrator",
         "system-prompt-test"
     )
     

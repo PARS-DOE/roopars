@@ -29,6 +29,7 @@ else
   curl -L https://raw.githubusercontent.com/PARS-DOE/roopars/main/config/.roo/system-prompt-ask -o .roo/system-prompt-ask
   curl -L https://raw.githubusercontent.com/PARS-DOE/roopars/main/config/.roo/system-prompt-code -o .roo/system-prompt-code
   curl -L https://raw.githubusercontent.com/PARS-DOE/roopars/main/config/.roo/system-prompt-debug -o .roo/system-prompt-debug
+  curl -L https://raw.githubusercontent.com/PARS-DOE/roopars/main/config/.roo/system-prompt-orchestrator -o .roo/system-prompt-orchestrator
   curl -L https://raw.githubusercontent.com/PARS-DOE/roopars/main/config/.roo/system-prompt-test -o .roo/system-prompt-test
   echo "System prompts downloaded and installed."
 fi
