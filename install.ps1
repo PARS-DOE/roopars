@@ -15,25 +15,29 @@ $SourceDir = $PSScriptRoot
 
 # If the config\.roo directory exists locally, use it
 if (Test-Path -Path "$SourceDir\config\.roo") {
-    Copy-Item -Path "$SourceDir\config\.roo\*" -Destination .roo\ -Force
-    Write-Host "System prompts installed from local source."
-}
-# Otherwise attempt to download from GitHub
-else {
-    Write-Host "Downloading system prompts from GitHub..."
-    $systemPrompts = @(
-        "system-prompt-architect", 
-        "system-prompt-ask", 
-        "system-prompt-code", 
-        "system-prompt-debug", 
-        "system-prompt-orchestrator",
-        "system-prompt-test"
-    )
-    
-    foreach ($prompt in $systemPrompts) {
-        Invoke-WebRequest -Uri "https://raw.githubusercontent.com/PARS-DOE/roopars/main/config/.roo/$prompt" -OutFile ".roo\$prompt"
+    # Specifically copy only the orchestrator prompt if it exists locally
+    $localOrchestratorPrompt = Join-Path -Path $SourceDir -ChildPath "config\.roo\system-prompt-orchestrator"
+    if (Test-Path -Path $localOrchestratorPrompt) {
+        Copy-Item -Path $localOrchestratorPrompt -Destination .roo\ -Force
+        Write-Host "Orchestrator system prompt installed from local source."
     }
-    Write-Host "System prompts downloaded and installed."
+    else {
+        Write-Host "Local orchestrator system prompt not found. Attempting download..."
+        # Fall through to download logic below
+    }
+}
+# Otherwise attempt to download the orchestrator prompt from GitHub
+else {
+    Write-Host "Downloading orchestrator system prompt from GitHub..."
+    $orchestratorUrl = "https://raw.githubusercontent.com/PARS-DOE/roopars/main/config/.roo/system-prompt-orchestrator"
+    $orchestratorDest = Join-Path -Path ".roo" -ChildPath "system-prompt-orchestrator"
+    try {
+        Invoke-WebRequest -Uri $orchestratorUrl -OutFile $orchestratorDest -ErrorAction Stop
+        Write-Host "Orchestrator system prompt downloaded and installed."
+    }
+    catch {
+        Write-Host "Error downloading orchestrator system prompt: $($_.Exception.Message)" -ForegroundColor Red
+    }
 }
 
 # Install .roomodes

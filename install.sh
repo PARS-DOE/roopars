@@ -18,18 +18,22 @@ SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # If the config/.roo directory exists locally, use it
 if [ -d "$SOURCE_DIR/config/.roo" ]; then
-  cp "$SOURCE_DIR/config/.roo"/* .roo/
-  echo "System prompts installed from local source."
-# Otherwise attempt to download from GitHub
+  # Specifically copy only the orchestrator prompt if it exists locally
+  if [ -f "$SOURCE_DIR/config/.roo/system-prompt-orchestrator" ]; then
+    cp "$SOURCE_DIR/config/.roo/system-prompt-orchestrator" .roo/
+    echo "Orchestrator system prompt installed from local source."
+  else
+    echo "Local orchestrator system prompt not found. Attempting download..."
+    # Fall through to download logic below
+  fi
+# Otherwise attempt to download the orchestrator prompt from GitHub
 else
-  echo "Downloading system prompts from GitHub..."
-  curl -L https://raw.githubusercontent.com/PARS-DOE/roopars/main/config/.roo/system-prompt-architect -o .roo/system-prompt-architect
-  curl -L https://raw.githubusercontent.com/PARS-DOE/roopars/main/config/.roo/system-prompt-ask -o .roo/system-prompt-ask
-  curl -L https://raw.githubusercontent.com/PARS-DOE/roopars/main/config/.roo/system-prompt-code -o .roo/system-prompt-code
-  curl -L https://raw.githubusercontent.com/PARS-DOE/roopars/main/config/.roo/system-prompt-debug -o .roo/system-prompt-debug
-  curl -L https://raw.githubusercontent.com/PARS-DOE/roopars/main/config/.roo/system-prompt-orchestrator -o .roo/system-prompt-orchestrator
-  curl -L https://raw.githubusercontent.com/PARS-DOE/roopars/main/config/.roo/system-prompt-test -o .roo/system-prompt-test
-  echo "System prompts downloaded and installed."
+  echo "Downloading orchestrator system prompt from GitHub..."
+  if curl -L https://raw.githubusercontent.com/PARS-DOE/roopars/main/config/.roo/system-prompt-orchestrator -o .roo/system-prompt-orchestrator; then
+    echo "Orchestrator system prompt downloaded and installed."
+  else
+    echo "Error downloading orchestrator system prompt."
+  fi
 fi
 
 # Install .roomodes
