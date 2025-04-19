@@ -10,8 +10,6 @@ echo "===================================="
 
 # Create necessary directories
 mkdir -p .roo
-mkdir -p memory-bank
-
 # Install .roo system prompts
 echo "Installing system prompts..."
 
@@ -54,6 +52,47 @@ else
   echo "Downloading .rooignore from GitHub..."
   curl -L https://raw.githubusercontent.com/PARS-DOE/roopars/main/config/.rooignore -o .rooignore
   echo ".rooignore downloaded and installed."
+fi
+
+# Check and initialize Memory Bank if it doesn't exist
+echo "Checking Memory Bank..."
+if [ ! -d "memory-bank" ]; then
+  echo "Memory Bank directory not found. Initializing from templates..."
+  mkdir -p memory-bank
+  # Check if the template directory exists relative to the script source
+  if [ -d "$SOURCE_DIR/memory-bank-init" ]; then
+    cp "$SOURCE_DIR/memory-bank-init/"* memory-bank/
+    echo "Memory Bank initialized successfully from local templates."
+  else
+    # Attempt to download templates from GitHub
+    echo "Local memory-bank-init directory not found. Downloading templates from GitHub..."
+    MEM_BANK_BASE_URL="https://raw.githubusercontent.com/PARS-DOE/roopars/main/memory-bank-init"
+    MEM_BANK_FILES=(
+      "activeContext.md"
+      "decisionLog.md"
+      "productContext.md"
+      "progress.md"
+      "systemPatterns.md"
+    )
+    
+    download_success=true
+    for file in "${MEM_BANK_FILES[@]}"; do
+      echo "Downloading $file..."
+      if ! curl -L "$MEM_BANK_BASE_URL/$file" -o "memory-bank/$file"; then
+        echo "Error downloading $file."
+        download_success=false
+      fi
+    done
+
+    if [ "$download_success" = true ]; then
+      echo "Memory Bank templates downloaded and initialized successfully."
+    else
+      echo "Memory Bank initialization failed due to download errors."
+      # Consider cleanup or exit if needed
+    fi
+  fi
+else
+  echo "Memory Bank directory already exists. Skipping initialization."
 fi
 
 # Install and run insert-variables.sh

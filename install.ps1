@@ -7,8 +7,6 @@ Write-Host "====================================" -ForegroundColor Cyan
 
 # Create necessary directories
 New-Item -ItemType Directory -Path .roo -Force | Out-Null
-New-Item -ItemType Directory -Path memory-bank -Force | Out-Null
-
 # Install .roo system prompts
 Write-Host "Installing system prompts..." -ForegroundColor Green
 
@@ -60,6 +58,56 @@ else {
     Write-Host "Downloading .rooignore from GitHub..."
     Invoke-WebRequest -Uri "https://raw.githubusercontent.com/PARS-DOE/roopars/main/config/.rooignore" -OutFile .rooignore
     Write-Host ".rooignore downloaded and installed."
+}
+
+# Check and initialize Memory Bank if it doesn't exist
+Write-Host "Checking Memory Bank..." -ForegroundColor Green
+if (-not (Test-Path -Path "memory-bank" -PathType Container)) {
+    Write-Host "Memory Bank directory not found. Initializing from templates..."
+    New-Item -ItemType Directory -Path memory-bank -Force | Out-Null
+    # Check if the template directory exists relative to the script source
+    $TemplateDir = Join-Path -Path $SourceDir -ChildPath "memory-bank-init"
+    if (Test-Path -Path $TemplateDir -PathType Container) {
+        Copy-Item -Path (Join-Path -Path $TemplateDir -ChildPath "*") -Destination memory-bank\ -Force
+        Write-Host "Memory Bank initialized successfully from local templates."
+    }
+    else {
+        # Attempt to download templates from GitHub
+        Write-Host "Local memory-bank-init directory not found. Downloading templates from GitHub..."
+        $memBankBaseUrl = "https://raw.githubusercontent.com/PARS-DOE/roopars/main/memory-bank-init"
+        $memBankFiles = @(
+            "activeContext.md",
+            "decisionLog.md",
+            "productContext.md",
+            "progress.md",
+            "systemPatterns.md"
+        )
+        
+        $downloadSuccess = $true
+        foreach ($file in $memBankFiles) {
+            $downloadUrl = "$memBankBaseUrl/$file"
+            $destinationPath = Join-Path -Path "memory-bank" -ChildPath $file
+            Write-Host "Downloading $file..."
+            try {
+                Invoke-WebRequest -Uri $downloadUrl -OutFile $destinationPath -ErrorAction Stop
+            }
+            catch {
+                Write-Host "Error downloading $file`: $($_.Exception.Message)" -ForegroundColor Red
+                $downloadSuccess = $false
+            }
+        }
+
+        if ($downloadSuccess) {
+            Write-Host "Memory Bank templates downloaded and initialized successfully."
+        }
+        else {
+            Write-Host "Memory Bank initialization failed due to download errors." -ForegroundColor Red
+            # Consider cleanup or exit if needed
+        }
+    }
+}
+else {
+    Write-Host "Memory Bank directory already exists. Skipping initialization."
 }
 
 # Install and run insert-variables.cmd
